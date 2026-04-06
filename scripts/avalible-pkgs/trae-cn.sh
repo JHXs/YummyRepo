@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source scripts/lib.sh # 公共函数（工具库）
+
 update_trae-cn() {
   name="trae-cn"
   aur_pkg="trae-cn-desktop-bin"
@@ -18,8 +20,13 @@ update_trae-cn() {
 
   url="https://lf-cdn.trae.com.cn/obj/trae-com-cn/pkg/app/releases/stable/${pkgver}/linux/Trae%20CN-linux-x64.rpm"
 
-  wget -O "packages/$name-v$pkgver.rpm" "$url"
+  arch="x86_64"
 
+  if ! download_file "$url" "packages/$name-v$pkgver-$arch.rpm"; then
+    return 1
+  fi
+
+  echo "更新完成: $name -> $pkgver"
   echo "$pkgver" > "$state_file"
   UPDATED=1
 }

@@ -170,9 +170,3 @@ bash scripts/fetch.sh
 # 生成元数据
 createrepo_c --update packages
 ```
-
-## 注意事项
-
-- 脚本使用 `wget -nc` 避免重复下载已存在的文件
-- `createrepo_c --update` 会增量更新元数据
-- S3 同步使用 `--delete` 参数，会删除存储桶中不再存在的文件
