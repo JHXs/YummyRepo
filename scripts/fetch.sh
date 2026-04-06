@@ -4,6 +4,12 @@ set -e
 mkdir -p packages
 mkdir -p state
 
+UPDATED=0
+
+source scripts/lib.sh # 公共函数（工具库）
+
+# ===== GitHub Release 软件=====
+
 STATE_FILE="state/releases.json"
 
 # 初始化 state
@@ -15,9 +21,9 @@ REPOS=(
   "chen08209/FlClash"
   "xishang0128/sparkle"
   "nashaofu/shell360"
+  "farion1231/cc-switch"
 )
 
-UPDATED=0
 
 for repo in "${REPOS[@]}"; do
   echo "Checking $repo..."
@@ -48,6 +54,20 @@ for repo in "${REPOS[@]}"; do
   mv "$tmp" "$STATE_FILE"
 
   UPDATED=1
+done
+
+# ===== AUR 软件 =====
+ENABLED_FILE="scripts/enabled.list"
+# 这里的逻辑是：每个软件一个脚本，命名为 软件名.sh，里面定义一个函数 update_软件名 来检查更新和下载。
+for pkg in $(cat "$ENABLED_FILE"); do
+  script="scripts/avalible-pkgs/$pkg.sh"
+
+  if [ -f "$script" ]; then
+    source "$script"
+    "update_$pkg"
+  else
+    echo "Warning: $pkg not found"
+  fi
 done
 
 # 输出是否有更新（给 workflow 用）
