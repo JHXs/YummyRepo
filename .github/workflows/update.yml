@@ -3,7 +3,7 @@ name: Update RPM Repo
 on:
   schedule: 
     - cron: "0 */6 * * *"  # 每6小时运行
-  workflow_dispatch:
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   build:
@@ -36,21 +36,42 @@ jobs:
       #     EOF
 
       - name: Fetch RPMs
+        id: fetch
         run: |
           bash scripts/fetch.sh
 
       - name: Generate metadata
+        if: env.UPDATED == '1'
         run: |
           createrepo_c --update packages
 
-      # - name: Upload to S3
-      #   run: |
-      #     rclone sync packages s3:${{ vars.BUCKET_NAME }}/packages --stats 1m
-
-      - name: Upload to S3
+      - name: Upload RPMs
+        if: env.UPDATED == '1'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
         run: |
-          aws s3 sync packages s3://${{ secrets.BUCKET_NAME }}/ --delete --endpoint-url ${{ secrets.BASE_URL }}
-#          aws s3 sync packages/repodata s3://${{ secrets.BUCKET_NAME }}/repodata --delete --endpoint-url ${{ secrets.BASE_URL }}
+          aws s3 sync packages s3://${{ secrets.BUCKET_NAME }}/ \
+            --exclude "repodata/*" \
+            --size-only \
+            --endpoint-url ${{ secrets.BASE_URL }}
+      #     rclone sync packages s3:${{ vars.BUCKET_NAME }}/packages --stats 1m
+      
+      - name: Upload repodata
+        if: env.UPDATED == '1'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
+        run: |
+          aws s3 sync packages/repodata/ s3://${{ secrets.BUCKET_NAME }}/repodata \
+            --delete \
+            --endpoint-url ${{ secrets.BASE_URL }}
+
+      - name: Commit state
+        if: env.UPDATED == '1'
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@github"
+          git add state/releases.json
+          git commit -m "Update release state" || true
+          git push
