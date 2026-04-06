@@ -2,7 +2,10 @@ name: Update RPM Repo
 
 on:
   schedule: 
-    - cron: "0 */6 * * *"  # 每6小时运行
+    - cron: "0 */24 * * *"  # 每24小时运行
+  on-push:
+    branches:
+      - main
   workflow_dispatch:  # 允许手动触发
 
 permissions:
