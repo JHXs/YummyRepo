@@ -33,5 +33,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
           # AWS_DEFAULT_REGION: us-east-1
         run: |
-          aws s3 sync packages s3://${{ vars.BUCKET_NAME }}/packages --delete --endpoint-url https://s3.hi168.com
-          aws s3 sync packages/repodata s3://${{ vars.BUCKET_NAME }}/repodata --delete --endpoint-url https://s3.hi168.com
+          aws s3 sync packages s3://${{ vars.BUCKET_NAME }}/packages --delete --endpoint-url https://s3.hi168.com --max-concurrent-requests 1
+          aws s3 sync packages/repodata s3://${{ vars.BUCKET_NAME }}/repodata --delete --endpoint-url https://s3.hi168.com --max-concurrent-requests 1
