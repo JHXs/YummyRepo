@@ -8,6 +8,7 @@ cd packages
 REPOS=(
   "chen08209/FlClash"
   "xishang0128/sparkle"
+  "nashaofu/shell360"
 )
 
 for repo in "${REPOS[@]}"; do
