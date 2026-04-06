@@ -48,6 +48,11 @@ jobs:
         run: |
           createrepo_c --update packages
 
+      - name: Configure AWS CLI
+        run: |
+          aws configure set default.s3.multipart_threshold 1GB
+          aws configure set default.s3.max_concurrent_requests 1
+
       - name: Upload RPMs
         if: env.UPDATED == '1'
         env:
@@ -57,8 +62,7 @@ jobs:
           aws s3 sync packages s3://${{ secrets.BUCKET_NAME }}/ \
             --exclude "repodata/*" \
             --size-only \
-            --endpoint-url ${{ secrets.BASE_URL }} \
-            --no-multipart-upload
+            --endpoint-url ${{ secrets.BASE_URL }} 
             
       #     rclone sync packages s3:${{ vars.BUCKET_NAME }}/packages --stats 1m
       
@@ -70,8 +74,7 @@ jobs:
         run: |
           aws s3 sync packages/repodata/ s3://${{ secrets.BUCKET_NAME }}/repodata \
             --delete \
-            --endpoint-url ${{ secrets.BASE_URL }} \
-            --no-multipart-upload
+            --endpoint-url ${{ secrets.BASE_URL }}
 
       - name: Commit state
         if: env.UPDATED == '1'
