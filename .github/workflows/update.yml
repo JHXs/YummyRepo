@@ -52,5 +52,5 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
         run: |
-          aws s3 sync packages s3://${{ secrets.BUCKET_NAME }}/packages --delete --endpoint-url ${{ secrets.BASE_URL }}
-          aws s3 sync packages/repodata s3://${{ secrets.BUCKET_NAME }}/repodata --delete --endpoint-url ${{ secrets.BASE_URL }}
+          aws s3 sync packages s3://${{ secrets.BUCKET_NAME }}/ --delete --endpoint-url ${{ secrets.BASE_URL }}
+#          aws s3 sync packages/repodata s3://${{ secrets.BUCKET_NAME }}/repodata --delete --endpoint-url ${{ secrets.BASE_URL }}
