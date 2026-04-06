@@ -36,7 +36,7 @@ for repo in "${REPOS[@]}"; do
   echo "New release detected for $repo!"
 
   # 下载 RPM
-  echo "$json" | jq -r '.assets[] | select(.name | endswith(".rpm")) | .browser_download_url' \
+  echo "$json" | jq -r '.assets[] | select(.name | endswith(".rpm") and (contains("x86_64") or contains("amd64"))) | .browser_download_url' \
   | while read url; do
       echo "Downloading $url"
       wget -nc -P packages "$url"
