@@ -57,7 +57,9 @@ jobs:
           aws s3 sync packages s3://${{ secrets.BUCKET_NAME }}/ \
             --exclude "repodata/*" \
             --size-only \
-            --endpoint-url ${{ secrets.BASE_URL }}
+            --endpoint-url ${{ secrets.BASE_URL }} \
+            --no-multipart-upload
+            
       #     rclone sync packages s3:${{ vars.BUCKET_NAME }}/packages --stats 1m
       
       - name: Upload repodata
@@ -68,13 +70,14 @@ jobs:
         run: |
           aws s3 sync packages/repodata/ s3://${{ secrets.BUCKET_NAME }}/repodata \
             --delete \
-            --endpoint-url ${{ secrets.BASE_URL }}
+            --endpoint-url ${{ secrets.BASE_URL }} \
+            --no-multipart-upload
 
       - name: Commit state
         if: env.UPDATED == '1'
         run: |
           git config user.name "bot"
           git config user.email "bot@github"
-          git add state/releases.json
-          git commit -m "Update release state" || true
+          git add state/
+          git commit -m "Update state files" || true
           git push
