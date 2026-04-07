@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 目前还不行
+
 source scripts/lib.sh # 公共函数（工具库）
 
 update_wps-cn() {
