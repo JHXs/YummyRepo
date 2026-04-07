@@ -18,6 +18,8 @@ update_trae-cn() {
 
   echo "$name: new version detected ($pkgver)"
 
+  prune_local_rpms "$name"
+
   url="https://lf-cdn.trae.com.cn/obj/trae-com-cn/pkg/app/releases/stable/${pkgver}/linux/Trae%20CN-linux-x64.rpm"
 
   arch="x86_64"

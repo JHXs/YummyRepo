@@ -20,6 +20,8 @@ update_linuxqq() {
 
   echo "$name: new version detected ($pkgver)"
 
+  prune_local_rpms "$name"
+
   # https://dldir1v6.qq.com/qqfile/qq/QQNT/Linux/QQ_3.2.27_260401_x86_64_01.rpm
   # https://dldir1v6.qq.com/qqfile/qq/QQNT/Linux/QQ_3.2.27_260401_amd64_01.deb
   url="https://dldir1v6.qq.com/qqfile/qq/QQNT/Linux/QQ_${pkgver}_x86_64_01.rpm"

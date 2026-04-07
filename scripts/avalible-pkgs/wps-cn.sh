@@ -23,6 +23,8 @@ update_wps-cn() {
 
   echo "$name: new version detected ($pkgver)"
 
+  prune_local_rpms "$name"
+
   arch="x86_64"
   furl="https://wps-linux-personal.wpscdn.cn/wps/download/ep/Linux2023/${pkgver##*.}/wps-office-${pkgver}.AK.preread.sw-1-648474.${arch}.rpm"
   uri="${furl#https://wps-linux-personal.wpscdn.cn}"

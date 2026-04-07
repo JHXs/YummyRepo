@@ -18,6 +18,8 @@ update_wechat() {
 
   echo "$name: new version detected ($pkgver)"
 
+  prune_local_rpms "$name"
+
   # https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.rpm
   url="https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.rpm"
 

@@ -8,58 +8,8 @@ UPDATED=0
 
 source scripts/lib.sh # 公共函数（工具库）
 
-# ===== GitHub Release 软件=====
-
-STATE_FILE="state/releases.json"
-
-# 初始化 state
-if [ ! -f "$STATE_FILE" ]; then
-  echo "{}" > "$STATE_FILE"
-fi
-
-REPOS=(
-  "chen08209/FlClash"
-  "xishang0128/sparkle"
-  "nashaofu/shell360"
-  "farion1231/cc-switch"
-  "lyswhut/lx-music-desktop"
-)
-
-
-for repo in "${REPOS[@]}"; do
-  echo "Checking $repo..."
-
-  json=$(curl -s https://api.github.com/repos/$repo/releases/latest)
-
-  release_id=$(echo "$json" | jq -r '.id')
-
-  old_id=$(jq -r --arg repo "$repo" '.[$repo] // "null"' "$STATE_FILE")
-
-  if [ "$release_id" = "$old_id" ]; then
-    echo "No update for $repo"
-    continue
-  fi
-
-  echo "New release detected for $repo!"
-
-  # 下载 RPM
-  echo "$json" | jq -r '.assets[] | select(.name | endswith(".rpm") and (contains("x64") or contains("x86_64") or contains("amd64"))) | .browser_download_url' \
-  | while read url; do
-      echo "Downloading $url"
-      wget -nc -P packages "$url"
-    done
-
-  # 更新 state
-  tmp=$(mktemp)
-  jq --arg repo "$repo" --arg id "$release_id" '.[$repo]=$id' "$STATE_FILE" > "$tmp"
-  mv "$tmp" "$STATE_FILE"
-
-  UPDATED=1
-done
-
-# ===== AUR 软件 =====
 ENABLED_FILE="scripts/enabled.list"
-# 这里的逻辑是：每个软件一个脚本，命名为 软件名.sh，里面定义一个函数 update_软件名 来检查更新和下载。
+# 每个软件一个脚本，命名为 软件名.sh，里面定义一个函数 update_软件名 来检查更新和下载。
 for pkg in $(cat "$ENABLED_FILE"); do
   script="scripts/avalible-pkgs/$pkg.sh"
 

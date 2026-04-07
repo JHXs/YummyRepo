@@ -41,6 +41,14 @@ jobs:
           acl = private
           EOF
 
+      - name: Restore existing RPMs
+        run: |
+          mkdir -p packages
+          rclone sync s3:${{ secrets.BUCKET_NAME }} packages \
+            --transfers 4 \
+            --checkers 8
+          ls -l packages
+
       - name: Fetch RPMs
         id: fetch
         run: |
@@ -55,6 +63,7 @@ jobs:
         if: env.UPDATED == '1'
         run: |
           rclone sync packages s3:${{ secrets.BUCKET_NAME }} \
+            --delete-during \
             --progress \
             --transfers 4 \
             --checkers 8
