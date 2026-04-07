@@ -24,22 +24,22 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y createrepo-c jq curl
-      #     # 安装 rclone
-      #     curl https://rclone.org/install.sh | sudo bash
+          # 安装 rclone
+          curl https://rclone.org/install.sh | sudo bash
 
-      # - name: Configure rclone
-      #   run: |
-      #     mkdir -p ~/.config/rclone
-      #     cat > ~/.config/rclone/rclone.conf << EOF
-      #     [s3]
-      #     type = s3
-      #     provider = Other
-      #     env_auth = false
-      #     access_key_id = ${{ secrets.AWS_KEY }}
-      #     secret_access_key = ${{ secrets.AWS_SECRET }}
-      #     endpoint = https://s3.hi168.com
-      #     acl = private
-      #     EOF
+      - name: Configure rclone
+        run: |
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf << EOF
+          [s3]
+          type = s3
+          provider = Other
+          env_auth = false
+          access_key_id = ${{ secrets.AWS_KEY }}
+          secret_access_key = ${{ secrets.AWS_SECRET }}
+          endpoint = ${{ secrets.BASE_URL }}
+          acl = private
+          EOF
 
       - name: Fetch RPMs
         id: fetch
@@ -51,33 +51,13 @@ jobs:
         run: |
           createrepo_c --update packages
 
-      - name: Configure AWS CLI
-        run: |
-          aws configure set default.s3.multipart_threshold 1GB
-          aws configure set default.s3.max_concurrent_requests 1
-
-      - name: Upload RPMs
+      - name: Sync files with rclone
         if: env.UPDATED == '1'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
         run: |
-          aws s3 sync packages s3://${{ secrets.BUCKET_NAME }}/ \
-            --exclude "repodata/*" \
-            --size-only \
-            --endpoint-url ${{ secrets.BASE_URL }} 
-            
-      #     rclone sync packages s3:${{ vars.BUCKET_NAME }}/packages --stats 1m
-      
-      - name: Upload repodata
-        if: env.UPDATED == '1'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
-        run: |
-          aws s3 sync packages/repodata/ s3://${{ secrets.BUCKET_NAME }}/repodata \
-            --delete \
-            --endpoint-url ${{ secrets.BASE_URL }}
+          rclone sync packages s3:${{ secrets.BUCKET_NAME }} \
+            --progress \
+            --transfers 4 \
+            --checkers 8
 
       - name: Commit state
         if: env.UPDATED == '1'

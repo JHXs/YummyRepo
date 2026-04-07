@@ -1,17 +1,17 @@
 # YummyRepo
 
-自动收集 RPM 包并构建自建 YUM 仓库，通过 S3 存储分发。
+自动收集 RPM 包并构建自建 YUM 仓库，通过 rclone 同步到对象存储分发。
 
 ## 项目简介
 
-本项目通过 GitHub Actions 定时从指定的 GitHub Releases 和 AUR 抓取 x86_64 架构的 RPM 包，使用 `createrepo_c` 生成 YUM 仓库元数据，并同步到 S3 存储，作为自建的 YUM 源使用。
+本项目通过 GitHub Actions 定时从指定的 GitHub Releases 和 AUR 抓取 x86_64 架构的 RPM 包，使用 `createrepo_c` 生成 YUM 仓库元数据，并通过 rclone 同步到对象存储，作为自建的 YUM 源使用。
 
 ## 工作流程
 
 ```
 ┌─────────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────┐
-│  GitHub Releases │ ──> │  Fetch RPMs  │ ──> │ createrepo_c │ ──> │   S3     │
-│  AUR 软件源      │     │  (fetch.sh)  │     │  生成元数据   │     │  存储    │
+│  GitHub Releases │ ──> │  Fetch RPMs  │ ──> │ createrepo_c │ ──> │ rclone   │
+│  AUR 软件源      │     │  (fetch.sh)  │     │  生成元数据   │     │  同步    │
 └─────────────────┘     └──────────────┘     └──────────────┘     └──────────┘
 ```
 
@@ -47,12 +47,11 @@ YummyRepo/
 ### 执行步骤
 
 1. **Checkout** - 拉取仓库代码
-2. **Install tools** - 安装 `createrepo-c`、`jq`、`curl` 等工具
+2. **Install tools** - 安装 `createrepo-c`、`jq`、`curl`、`rclone` 等工具
 3. **Fetch RPMs** - 运行 `scripts/fetch.sh` 从 GitHub Releases 和 AUR 下载 RPM 包
 4. **Generate metadata** - 使用 `createrepo_c --update packages` 生成 YUM 仓库元数据（仅在有更新时）
-5. **Upload RPMs** - 将 RPM 包同步到 S3 存储（仅在有更新时）
-6. **Upload repodata** - 将元数据同步到 S3 存储（仅在有更新时）
-7. **Commit state** - 提交版本状态文件到仓库（仅在有更新时）
+5. **Sync files** - 使用 rclone 将整个仓库目录同步到对象存储（仅在有更新时）
+6. **Commit state** - 提交版本状态文件到仓库（仅在有更新时）
 
 ## 配置说明
 
@@ -62,10 +61,10 @@ YummyRepo/
 
 | 变量名 | 类型 | 说明 |
 |--------|------|------|
-| `AWS_KEY` | Secret | S3 访问密钥 ID |
-| `AWS_SECRET` | Secret | S3 访问密钥 |
-| `BUCKET_NAME` | Secret | S3 存储桶名称 |
-| `BASE_URL` | Secret | S3 端点 URL |
+| `AWS_KEY` | Secret | 对象存储访问密钥 ID |
+| `AWS_SECRET` | Secret | 对象存储访问密钥 |
+| `BUCKET_NAME` | Secret | 存储桶名称 |
+| `BASE_URL` | Secret | 对象存储端点 URL |
 
 ### 添加新的 RPM 源
 
