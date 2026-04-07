@@ -55,14 +55,23 @@ jobs:
           bash scripts/fetch.sh
 
       - name: Generate metadata
-        if: env.UPDATED == '1'
         run: |
           createrepo_c --update packages
 
-      - name: Sync files with rclone
+      - name: Sync RPMs with rclone
         if: env.UPDATED == '1'
         run: |
           rclone sync packages s3:${{ secrets.BUCKET_NAME }} \
+            --exclude "repodata/**" \
+            --exclude "*.deb" \
+            --delete-during \
+            --progress \
+            --transfers 4 \
+            --checkers 8
+
+      - name: Sync repodata with rclone
+        run: |
+          rclone sync packages/repodata s3:${{ secrets.BUCKET_NAME }}/repodata \
             --delete-during \
             --progress \
             --transfers 4 \
