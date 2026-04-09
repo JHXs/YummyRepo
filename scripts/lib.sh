@@ -19,6 +19,18 @@ get_github_latest_release_json() {
   curl -s "https://api.github.com/repos/$repo/releases/latest"
 }
 
+# 获取 GitHub 指定发布线（tag 前缀）的最新 release JSON
+# 参数: $1=repo (owner/name), $2=tag_prefix, $3=per_page(可选,默认50)
+# 行为: 仅返回非 draft 且非 prerelease 的第一条匹配项；若无匹配，返回 {}
+get_github_latest_release_json_by_tag_prefix() {
+  local repo="$1"
+  local tag_prefix="$2"
+  local per_page="${3:-50}"
+
+  curl -s "https://api.github.com/repos/$repo/releases?per_page=$per_page" \
+    | jq -c --arg prefix "$tag_prefix" '[.[] | select((.tag_name // "") | startswith($prefix)) | select(.draft | not) | select(.prerelease | not)][0] // {}'
+}
+
 # 从 release JSON 提取 release id
 # 参数: $1=release_json
 get_github_release_id() {
