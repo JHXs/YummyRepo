@@ -2,8 +2,8 @@
 
 source scripts/lib.sh # 公共函数（工具库）
 
-update_bitwarden() {
-  name="bitwarden"
+update_Bitwarden() {
+  name="Bitwarden"
   repo="bitwarden/clients"
 
   # clients 仓库包含 web/cli/desktop 多条发布线，RPM 仅在 desktop-v* 中。

@@ -10,7 +10,15 @@ source scripts/lib.sh # 公共函数（工具库）
 
 ENABLED_FILE="scripts/enabled.list"
 # 每个软件一个脚本，命名为 软件名.sh，里面定义一个函数 update_软件名 来检查更新和下载。
-for pkg in $(cat "$ENABLED_FILE"); do
+while IFS= read -r raw_line; do
+  # 支持空行、整行注释和行内注释
+  pkg="${raw_line%%#*}"
+  pkg="$(echo "$pkg" | xargs)"
+
+  if [ -z "$pkg" ]; then
+    continue
+  fi
+
   script="scripts/avalible-pkgs/$pkg.sh"
 
   if [ -f "$script" ]; then
@@ -19,7 +27,7 @@ for pkg in $(cat "$ENABLED_FILE"); do
   else
     echo "Warning: $pkg not found"
   fi
-done
+done < "$ENABLED_FILE"
 
 # 输出是否有更新（给 workflow 用）
 echo "UPDATED=$UPDATED" >> $GITHUB_ENV
