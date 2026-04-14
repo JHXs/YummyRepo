@@ -17,7 +17,7 @@ update_wps-cn() {
   old=$(cat "$state_file" 2>/dev/null || echo "")
 
   if [ "$pkgver" = "$old" ]; then
-    echo "$name: no update"
+    echo "$name: no update ($pkgver)"
     return
   fi
 
@@ -25,15 +25,9 @@ update_wps-cn() {
 
   prune_local_rpms "$name"
 
-  arch="x86_64"
-  furl="https://wps-linux-personal.wpscdn.cn/wps/download/ep/Linux2023/${pkgver##*.}/wps-office-${pkgver}.AK.preread.sw-1-648474.${arch}.rpm"
-  uri="${furl#https://wps-linux-personal.wpscdn.cn}"
-  secrityKey='7f8faaaa468174dc1c9cd62e5f218a5b'
+  arch=x86_64
 
-  timestamp10=$(date '+%s')
-  md5hash=$(echo -n "${secrityKey}${uri}${timestamp10}" | md5sum | awk '{print $1}')
-
-  url="${furl}?t=${timestamp10}&k=${md5hash}"
+  url=$(_get_source_url $arch)
 
   echo "Downloading $url"
 
@@ -46,3 +40,15 @@ update_wps-cn() {
   echo "$pkgver" > "$state_file"
   UPDATED=1
 }
+
+_get_source_url() {
+      local furl="https://wps-linux-personal.wpscdn.cn/wps/download/ep/Linux2023/${pkgver##*.}/wps-office-${pkgver}.AK.preread.sw.Personal-1-663297.${arch}.rpm"
+      local uri="${furl#https://wps-linux-personal.wpscdn.cn}"
+      local secrityKey='7f8faaaa468174dc1c9cd62e5f218a5b'
+      local timestamp10=$(date '+%s')
+      local md5hash=$(echo -n "${secrityKey}${uri}${timestamp10}" | md5sum)
+      #echo "$md5hash"
+      #echo "$md5hash"
+      #exit 1
+      echo "${furl}?t=${timestamp10}&k=${md5hash%% *}"
+  }

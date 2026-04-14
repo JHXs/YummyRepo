@@ -52,9 +52,12 @@ download_file() {
   local url="$1"
   local output="$2"
 
+  export http_proxy="http://ikunji:ikunji@localhost:7890"
+  export https_proxy="http://ikunji:ikunji@localhost:7890"
+
   mkdir -p "$(dirname "$output")"
 
-  if ! wget -O "$output" "$url"; then
+  if ! wget --tries=3 --retry-connrefused -O "$output" "$url"; then
     echo "Error: Failed to download $url"
     rm -f "$output"
     return 1
