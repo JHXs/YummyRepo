@@ -13,7 +13,7 @@ _WGET_OPTS=(-e http_proxy=http://ikunji:ikunji@localhost:7890 -e https_proxy=htt
 get_aur_pkgver() {
   aur_pkg="$1"
 
-  curl -s "${_CURL_OPTS[@]}" "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=$aur_pkg" \
+  curl -s "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=$aur_pkg" \
     | grep '^pkgver=' | cut -d= -f2
 }
 
