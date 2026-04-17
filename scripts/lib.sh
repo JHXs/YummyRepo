@@ -2,8 +2,10 @@
 
 # Library of reusable functions 公共函数（工具库）
 
-# curl 公共选项：代理 + 超时
-_CURL_OPTS=(-x "http://ikunji:ikunji@localhost:7890" --connect-timeout 10 --max-time 30)
+# curl 公共选项：代理 + 超时 + 重试
+_CURL_OPTS=(-x "http://ikunji:ikunji@localhost:7890" --connect-timeout 10 --max-time 30 --retry 3 --retry-delay 2 --retry-connrefused)
+# wget 公共选项：代理 + 重试
+_WGET_OPTS=(-e http_proxy=http://ikunji:ikunji@localhost:7890 -e https_proxy=http://ikunji:ikunji@localhost:7890 --tries=3 --retry-connrefused)
 
 # 从 AUR PKGBUILD 中提取 pkgver
 # 参数: $1=aur_pkg_name
@@ -57,7 +59,7 @@ download_file() {
 
   mkdir -p "$(dirname "$output")"
 
-  if ! wget -e http_proxy=http://ikunji:ikunji@localhost:7890 --tries=3 --retry-connrefused -O "$output" "$url"; then
+  if ! wget "${_WGET_OPTS[@]}" -O "$output" "$url"; then
     echo "Error: Failed to download $url"
     rm -f "$output"
     return 1
