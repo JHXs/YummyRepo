@@ -2,13 +2,16 @@
 
 # Library of reusable functions 公共函数（工具库）
 
+# curl 公共选项：代理 + 超时
+_CURL_OPTS=(-x "http://ikunji:ikunji@localhost:7890" --connect-timeout 10 --max-time 30)
+
 # 从 AUR PKGBUILD 中提取 pkgver
 # 参数: $1=aur_pkg_name
 # 输出: pkgver
 get_aur_pkgver() {
   aur_pkg="$1"
 
-  curl -s "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=$aur_pkg" \
+  curl -s "${_CURL_OPTS[@]}" "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=$aur_pkg" \
     | grep '^pkgver=' | cut -d= -f2
 }
 
@@ -16,7 +19,7 @@ get_aur_pkgver() {
 # 参数: $1=repo (owner/name)
 get_github_latest_release_json() {
   local repo="$1"
-  curl -s "https://api.github.com/repos/$repo/releases/latest"
+  curl -s "${_CURL_OPTS[@]}" "https://api.github.com/repos/$repo/releases/latest"
 }
 
 # 获取 GitHub 指定发布线（tag 前缀）的最新 release JSON
@@ -27,7 +30,7 @@ get_github_latest_release_json_by_tag_prefix() {
   local tag_prefix="$2"
   local per_page="${3:-50}"
 
-  curl -s "https://api.github.com/repos/$repo/releases?per_page=$per_page" \
+  curl -s "${_CURL_OPTS[@]}" "https://api.github.com/repos/$repo/releases?per_page=$per_page" \
     | jq -c --arg prefix "$tag_prefix" '[.[] | select((.tag_name // "") | startswith($prefix)) | select(.draft | not) | select(.prerelease | not)][0] // {}'
 }
 
@@ -52,12 +55,9 @@ download_file() {
   local url="$1"
   local output="$2"
 
-  export http_proxy="http://ikunji:ikunji@localhost:7890"
-  export https_proxy="http://ikunji:ikunji@localhost:7890"
-
   mkdir -p "$(dirname "$output")"
 
-  if ! wget --tries=3 --retry-connrefused -O "$output" "$url"; then
+  if ! wget -e http_proxy=http://ikunji:ikunji@localhost:7890 --tries=3 --retry-connrefused -O "$output" "$url"; then
     echo "Error: Failed to download $url"
     rm -f "$output"
     return 1
@@ -84,4 +84,3 @@ prune_local_rpms() {
 
   find packages -maxdepth 1 -type f -name "${prefix}-*.rpm" -print -delete || true
 }
-
