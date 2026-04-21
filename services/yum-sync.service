@@ -1,0 +1,6 @@
+[Unit]
+Description=Sync YUM Repo from rclone remote
+
+[Service]
+Type=oneshot
+ExecStart=/home/hansel/scripts/sync-yum.sh
