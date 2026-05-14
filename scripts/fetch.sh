@@ -74,6 +74,8 @@ fi
 # 本地运行时：有更新则自动提交并推送到 GitHub
 if [ "$UPDATED" -eq 1 ] && [ -z "${GITHUB_ACTIONS:-}" ]; then
   echo "检测到更新，正在提交 state 到 GitHub..."
+  git config user.name "CC-vps"
+  git config user.email "58466533+JHXs@users.noreply.github.com"
   git add state/
   if ! git diff --cached --quiet; then
     git commit -m "chore: update state files [$(date '+%Y-%m-%d %H:%M:%S')]"
