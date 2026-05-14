@@ -169,3 +169,5 @@ bash scripts/fetch.sh
 # 生成元数据
 createrepo_c --update packages
 ```
+
+fetch.sh 添加自动提交git
