@@ -47,7 +47,7 @@ get_github_release_id() {
 # 参数: $1=release_json
 get_github_rpm_urls() {
   local release_json="$1"
-  echo "$release_json" | jq -r '.assets[] | select(.name | endswith(".rpm") and (contains("x64") or contains("x86_64") or contains("amd64"))) | .browser_download_url'
+  echo "$release_json" | jq -r '.assets[] | select(.name | endswith(".rpm") and (contains("x64") or contains("x86_64") or contains("amd64")) and (contains("suse") | not)) | .browser_download_url'
 }
 
 # 下载文件并验证完整性

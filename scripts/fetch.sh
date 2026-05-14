@@ -70,3 +70,16 @@ done
 if [ -n "${GITHUB_ENV:-}" ]; then
   echo "UPDATED=$UPDATED" >> "$GITHUB_ENV"
 fi
+
+# 本地运行时：有更新则自动提交并推送到 GitHub
+if [ "$UPDATED" -eq 1 ] && [ -z "${GITHUB_ACTIONS:-}" ]; then
+  echo "检测到更新，正在提交 state 到 GitHub..."
+  git add state/
+  if ! git diff --cached --quiet; then
+    git commit -m "chore: update state files [$(date '+%Y-%m-%d %H:%M:%S')]"
+    git push
+    echo "已成功推送到 GitHub。"
+  else
+    echo "state 无变化，跳过提交。"
+  fi
+fi
