@@ -5,9 +5,8 @@
 source scripts/lib.sh # 公共函数（工具库）
 
 update_wps-cn() {
-# https://wps-linux-personal.wpscdn.cn/wps/download/ep/Linux2023/25838/wps-office-12.1.2.25838.AK.preread.sw-1-648474.x86_64.rpm?t=1775476611&k=0453247c5b156ea8ea070dc8bc3c44d0
 # https://wps-linux-personal.wpscdn.cn/wps/download/ep/Linux2023/25838/wps-office_12.1.2.25838.AK.preread.sw_648473_amd64.deb?t=1775469687&k=ee5f53671551f45a366b2afd03c0a51c
-
+# https://wps-linux-personal.wpscdn.cn/wps/download/ep/Linux2023/26885/wps-office-12.1.2.26885.AK.preread.sw.Personal-1-715973.x86_64.rpm?t=1782395609&k=670a3dbf29819558ddb82d3d0acd978c
   name="wps-cn"
   aur_pkg="wps-office-cn"
 
@@ -42,7 +41,7 @@ update_wps-cn() {
 }
 
 _get_source_url() {
-      local furl="https://wps-linux-personal.wpscdn.cn/wps/download/ep/Linux2023/${pkgver##*.}/wps-office-${pkgver}.AK.preread.sw.Personal-1-663297.${arch}.rpm"
+      local furl="https://wps-linux-personal.wpscdn.cn/wps/download/ep/Linux2023/${pkgver##*.}/wps-office-${pkgver}.AK.preread.sw.Personal-1-715973.${arch}.rpm"
       local uri="${furl#https://wps-linux-personal.wpscdn.cn}"
       local secrityKey='7f8faaaa468174dc1c9cd62e5f218a5b'
       local timestamp10=$(date '+%s')
